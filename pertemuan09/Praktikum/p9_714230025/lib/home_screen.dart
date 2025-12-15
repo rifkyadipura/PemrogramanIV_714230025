@@ -41,7 +41,13 @@ class _MyHomeState extends State<MyHome> {
               ElevatedButton(
                 onPressed: () {
                   logindata.setBool('login', true);
-                  logindata.remove('username');
+
+                  bool rememberMe = logindata.getBool('remember_me') ?? false;
+
+                  if (rememberMe == false) {
+                    logindata.remove('username');
+                  }
+
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
