@@ -1,9 +1,6 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:p9_714230025/botnav.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,6 +17,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   late SharedPreferences loginData;
   late bool newUser;
+
+  bool _isChecked = false;
 
   @override
   void dispose() {
@@ -42,6 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return null;
   }
 
+  @override
   void initState() {
     super.initState();
     checkLogin();
@@ -52,11 +52,23 @@ class _LoginScreenState extends State<LoginScreen> {
     newUser = (loginData.getBool('login') ?? true);
 
     if (newUser == false) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const DynamicBottomNavBar()),
-        (route) => false,
-      );
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const DynamicBottomNavBar()),
+          (route) => false,
+        );
+      }
+    } else {
+      String? savedUsername = loginData.getString('username');
+      bool? rememberMe = loginData.getBool('remember_me');
+
+      if (rememberMe == true && savedUsername != null) {
+        setState(() {
+          _usernameController.text = savedUsername;
+          _isChecked = true;
+        });
+      }
     }
   }
 
@@ -97,6 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: TextFormField(
                       obscureText: true,
                       validator: _validatePassword,
+                      controller: _passwordController,
                       decoration: const InputDecoration(
                         prefixIcon: Icon(Icons.password_rounded),
                         hintText: 'Write your password here...',
@@ -109,6 +122,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
+
+                  CheckboxListTile(
+                    title: const Text("Remember Me"),
+                    value: _isChecked,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        _isChecked = value ?? false;
+                      });
+                    },
+                    controlAffinity: ListTileControlAffinity.leading,
+                  ),
+
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ElevatedButton(
@@ -119,6 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         if (isValidForm) {
                           loginData.setBool('login', false);
                           loginData.setString('username', username);
+                          loginData.setBool('remember_me', _isChecked);
 
                           Navigator.pushAndRemoveUntil(
                             context,
