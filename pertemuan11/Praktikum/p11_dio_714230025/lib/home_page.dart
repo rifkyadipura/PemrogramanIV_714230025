@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'data_service.dart';
 import 'user.dart';
 import 'user_card.dart';
+import 'user_update_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,6 +19,7 @@ class _HomePageState extends State<HomePage> {
   String _result = '-';
   List<User> _users = [];
   UserCreate? usrCreate;
+  UserCreate? usrUpdate;
 
   @override
   void dispose() {
@@ -125,9 +127,18 @@ class _HomePageState extends State<HomePage> {
                           _jobCtl.text,
                         );
 
-                        setState(() {
-                          _result = res.toString();
-                        });
+                        if (res != null) {
+                          final updateModel = UserCreate(
+                            name: _nameCtl.text,
+                            job: _jobCtl.text,
+                            createdAt: DateTime.now().toString(),
+                          );
+
+                          setState(() {
+                            _result = updateModel.toString();
+                            usrUpdate = updateModel;
+                          });
+                        }
 
                         _nameCtl.clear();
                         _jobCtl.clear();
@@ -170,6 +181,8 @@ class _HomePageState extends State<HomePage> {
                       setState(() {
                         _result = '-';
                         _users.clear();
+                        usrCreate = null;
+                        usrUpdate = null;
                       });
                     },
                     child: const Text('Reset'),
@@ -183,9 +196,20 @@ class _HomePageState extends State<HomePage> {
               ),
               const SizedBox(height: 8.0),
               Expanded(
-                child: _users.isNotEmpty ? buildListUser() : Text(_result),
+                child: _users.isNotEmpty
+                    ? buildListUser()
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(_result),
+                          const SizedBox(height: 10),
+                          const Spacer(),
+                          hasilCard(context),
+                          const SizedBox(height: 10),
+                          hasilUpdateCard(),
+                        ],
+                      ),
               ),
-              hasilCard(context),
               const SizedBox(height: 20),
             ],
           ),
@@ -215,12 +239,22 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget hasilCard(BuildContext context) {
+    if (usrCreate != null) {
+      return UserCard(usrCreate: usrCreate!);
+    }
+    if (usrUpdate != null) {
+      return const SizedBox();
+    }
+    return const Text('no data');
+  }
+
+  Widget hasilUpdateCard() {
     return Column(
       children: [
-        if (usrCreate != null)
-          UserCard(usrCreate: usrCreate!)
+        if (usrUpdate != null)
+          UserUpdateCard(usrUpdate: usrUpdate!)
         else
-          const Text('no data'),
+          const SizedBox(),
       ],
     );
   }

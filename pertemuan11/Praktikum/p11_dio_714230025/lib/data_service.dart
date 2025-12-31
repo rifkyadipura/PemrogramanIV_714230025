@@ -9,8 +9,7 @@ class DataService {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'x-api-key':
-            'reqres_bbca121c38f748198e21e44314b34e2b', // ✅ WAJIB BERISI API KEY
+        'x-api-key': 'reqres_bbca121c38f748198e21e44314b34e2b',
       },
     ),
   );
@@ -36,7 +35,6 @@ class DataService {
       debugPrint('STATUS: ${response.statusCode}');
       debugPrint('DATA: ${response.data}');
 
-      // ReqRes biasanya mengembalikan 201 (Created)
       if (response.statusCode == 201) {
         return UserCreate.fromJson(response.data);
       }
